@@ -25,7 +25,7 @@ SECRET_KEY = '^8n+@(mi$z^l9r2$$&wvos-90f+==i)f-hldbsly#*@)c=3op0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -41,9 +41,13 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'rest_framework_gis',
+    'crispy_forms',
+    'django_select2',
+    'leaflet',
     'humanitaria'
 ]
 GDAL_LIBRARY_PATH = 'C:/Anaconda3/envs/log_hum/Lib/site-packages/osgeo/gdal203.dll'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -86,13 +90,7 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': 'contra',
         'HOST': '127.0.0.1'
-    },
-    # 'blog': {
-    #     'NAME': 'blog',
-    #     'ENGINE': 'django.contrib.gis.db.backends.spatialite',
-    #     'USER': 'myuser2',
-    #     'PASSWORD': 'mypass2'
-    # }
+    }
 }
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators

@@ -3,20 +3,21 @@ import json
 from django.shortcuts import render
 from django.views.generic.edit import FormView
 
+from humanitaria.forms import FormConsultaGeo
 from humanitaria.serializers import *
 
 
 class ConsultaGeoespacial(FormView):
-    template_name = ''
-    form_class = None
+    template_name = 'consulta_geoespacial.html'
+    form_class = FormConsultaGeo
 
     def form_invalid(self, form):
         return super(ConsultaGeoespacial, self).form_invalid(form)
 
     def form_valid(self, form):
-        entidad = form.cleaned_data['DES_EDO_RES']
-        municipio = form.cleaned_data['DES_MPO_RES']
-        localidad = form.cleaned_data['DES_LOC_RES']
+        entidad = form.cleaned_data['entidad']
+        municipio = form.cleaned_data['municipio']
+        localidad = form.cleaned_data['localidad']
         agebu = form.cleaned_data
         agebr = form.cleaned_data
         ent = None

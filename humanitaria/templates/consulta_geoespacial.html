@@ -1,0 +1,446 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% load leaflet_tags %}
+{% leaflet_js plugins="forms, minimap" %}
+{% leaflet_css plugins="forms, minimap" %}
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'humanitaria/css/Control.FullScreen.css' %}" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+<link rel="stylesheet" href="
+{% static 'humanitaria/css/Control.Loading.css' %}" />
+<script src="{% static 'humanitaria/js/Control.Loading.js' %}"></script>
+
+<link rel="stylesheet" href="{% static 'humanitaria/css/leaflet-sidebar.min.css' %}" />
+<script src="{% static 'humanitaria/js/leaflet-sidebar.min.js' %}"></script>
+
+<link rel="stylesheet" href="{% static 'humanitaria/css/leaflet-search.css' %}"/>
+<script src="{% static 'humanitaria/js/leaflet-search.js' %}"></script>
+
+<style type="text/css">
+    #gis { width:100%; height:800px }
+    .select2-selection {
+
+        width: 350px;
+    }
+
+    .info {
+        padding: 6px 8px;
+        font: 14px/16px Arial, Helvetica, sans-serif;
+        background: white;
+        background: rgba(255,255,255,0.8);
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        border-radius: 5px;
+    }
+    .info h4 {
+        margin: 0 0 5px;
+        color: #777;
+    }
+
+    .legend {
+        line-height: 18px;
+        color: #555;
+    }
+    .legend i {
+        width: 18px;
+        height: 18px;
+        float: left;
+        margin-right: 8px;
+        opacity: 0.7;
+    }
+</style>
+
+<div id="sidebar" class="leaflet-sidebar collapsed">
+    <!-- Nav tabs -->
+    <div class="leaflet-sidebar-tabs">
+        <ul role="tablist"> <!-- top aligned tabs -->
+            <li><a href="#home" role="tab"><i class="fa fa-globe"></i></a></li>
+            <li><a href="#profile" role="tab"><i class="fa fa-map-pin"></i></a></li>
+        </ul>
+
+    </div>
+
+
+    <div class="leaflet-sidebar-content">
+        <div class="leaflet-sidebar-pane" id="home">
+            <h1 class="leaflet-sidebar-header">
+                Consulta geográfica
+                <div class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></div>
+            </h1>
+            <form method="post" action="{% url 'geo:consultar_vector_geo' %}">
+                {% csrf_token %}
+                {% crispy form_geo %}
+            </form>
+        </div>
+
+        <div class="leaflet-sidebar-pane" id="profile">
+            <h1 class="leaflet-sidebar-header">
+                Consultar dirección
+                <div class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></div>
+            </h1>
+            <form method="post" action="{% url 'geo:consultar_direccion' %}">
+                {% csrf_token %}
+                {% crispy form_dir %}
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if geojson %}
+    <script>
+        var dengues = {{ geojson|safe }};
+        var embarazadas = {{ embarazadas|safe }};
+        var e = {{ entidad|safe }};
+        var m = {{ municipio|safe }};
+        var l = {{ localidad|safe }};
+    </script>
+{% else %}
+    <script>
+        var dengues = null;
+        var embarazadas = null;
+        var e = null;
+        var m = null;
+        var l = null;
+    </script>
+{% endif %}
+
+{% if punto %}
+    <script>
+    var punto = {{ punto|safe }};
+    var dengues = {{ vectores|safe }};
+    </script>
+{% else %}
+    <script>
+    var punto = null;
+    </script>
+{% endif %}
+
+<script type="text/javascript">
+    $(function() {
+        $('.django-select2').djangoSelect2({dropdownParent: $('#sidebar')});
+    });
+
+    function map_init_basic (map, options) {
+
+        var HERE_hybridDay = L.tileLayer('https://{s}.{base}.maps.cit.api.here.com/maptile/2.1/{type}/{mapID}/hybrid.day/{z}/{x}/{y}/{size}/{format}?app_id={app_id}&app_code={app_code}&lg={language}', {
+            attribution: 'Map &copy; 1987-2014 <a href="http://developer.here.com">HERE</a>',
+            subdomains: '1234',
+            mapID: 'newest',
+            app_id: 'ODO3XU8gNqMe0wMRFTx3',
+            app_code: 'rA-Pn3rOrBPniz565TRJ6A',
+            base: 'aerial',
+            maxZoom: 20,
+            type: 'maptile',
+            language: 'spa',
+            format: 'png8',
+            size: '256',
+            ppi: 500
+
+        });
+        if (punto) {
+            var marker = L.marker(punto).addTo(map);
+        }
+        HERE_hybridDay.addTo(map);
+
+        // new L.Control.ResetView([19.419444,  -99.145556]).addTo(map);
+        var sidebar = L.control.sidebar({
+            autopan: false,       // whether to maintain the centered map point when opening the sidebar
+            closeButton: true,    // whether t add a close button to the panes
+            container: 'sidebar', // the DOM container or #ID of a predefined sidebar container that should be used
+            position: 'left'     // left or right
+        }).addTo(map);
+
+        var loadingControl = L.Control.loading();
+
+        map.addControl(loadingControl);
+
+        L.control.fullscreen({
+            position: 'topleft', // change the position of the button can be topleft, topright, bottomright or bottomleft, defaut topleft
+            title: 'Pantalla completa', // change the title of the button, default Full Screen
+            titleCancel: 'Salir de pantalla completa', // change the title of the button when fullscreen is on, default Exit Full Screen
+            fullscreenElement: false // Dom element to render in full screen, false by default, fallback to map._container
+        }).addTo(map);
+
+
+
+        var emb = new L.geoJson(embarazadas,{
+            pointToLayer: function (feature, latlng) {
+                return L.marker(latlng, {
+                    riseOnHover: true
+                });
+
+            },
+            onEachFeature: function(feature,layer){
+                var props = feature.properties;
+                var NSS = props.NSS;
+                var url = "{% url 'geo:embarazadas' 123 %}".replace('123', NSS.toString());
+                var content = `<p><strong>NSS: </strong><a href=${url} target="_blank"> ${props.NSS} </a></p><p><strong>Nombre: </strong> ${props.IDE_NOM} ${props.IDE_APE_PAT} ${props.IDE_APE_MAT}</p><p><strong>Dirección: </strong> ${props.NUM_EXT} ${props.IDE_CAL}, ${props.DES_MPO_RES} ${props.DES_EDO_RES}, ${props.IDE_CP} </p><p><strong>Fecha de última menstruación:</strong> ${props.FECHA_MENSTRUACION} </p><p><strong>Fecha probable de parto:</strong> ${props.FECHA_PARTO} </p><p><strong>Semanas de gestación:</strong> ${props.sdg} </p><p><strong>En peligro:</strong> ${props.PELIGRO} </p>`;
+                layer.bindPopup(content);
+            }
+        });
+
+        var den = new L.geoJson(dengues,{
+            pointToLayer: function (feature, latlng) {
+                return L.marker(latlng, {
+                    icon: L.icon({
+                        iconUrl: "{% static '/geo/imagenes/mosquito.png' %}",
+                        iconSize: [40, 40],
+                        popupAnchor: [0, -25]
+                    }),
+                    riseOnHover: true
+                });
+            },
+            onEachFeature: function(feature,layer){
+                var props = feature.properties;
+                var imagen = "{% static '/geo/imagenes/aedes-aegypti.png' %}";
+                var pk = props.pk;
+                var cercanas = pointsInCircle(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
+                var url = "{% url 'geo:vectores' 123 %}".replace('123', pk.toString());
+                var content = `<p><strong>ID:</strong><a href=${url} target="_blank"> ${props.pk} </a></p><p><strong>Número de embarazadas amenazadas:</strong> ${cercanas} </p><p><strong>Dirección:</strong> ${props.NUM_EXT} ${props.IDE_CAL}, ${props.DES_MPO_RES} ${props.DES_EDO_RES}, ${props.IDE_CP} </p>`;
+                layer.bindPopup(content);
+            }
+        });
+        var circulo = new L.geoJson(dengues , {
+                pointToLayer: function (feature, latlng) {
+                    return L.circle(latlng, {
+                        radius: 200,
+                        color: '#ff00ba'
+                    })
+                },
+                onEachFeature: function(feature,layer){
+                    var content = pointsInCircle(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
+                    layer.bindPopup(`<p><strong>Número de amenazas:</strong> ${content}</p>`);
+                }
+            }
+
+        );
+
+        var ent = new L.geoJson(e, {
+            onEachFeature: function(feature,layer){
+                var props = feature.properties;
+                var content = props.contenido;
+                layer.on({
+                    mouseover: highlightFeature,
+                    mouseout: resetHighlight,
+                    click: zoomToFeature
+                });
+                layer.bindPopup(content);
+            },
+            style: style
+        });
+
+        var mun = new L.geoJson(m, {
+            onEachFeature: function(feature,layer){
+                var props = feature.properties;
+                var content = props.contenido;
+                layer.on({
+                    mouseover: highlightFeature,
+                    mouseout: resetHighlight,
+                    click: zoomToFeature
+                });
+                layer.bindPopup(content);
+            },
+            style: style
+        });
+
+        var loc = new L.geoJson(l, {
+            onEachFeature: function(feature,layer){
+                var props = feature.properties;
+                var content = props.contenido;
+                layer.on({
+                    mouseover: highlightFeature,
+                    mouseout: resetHighlight,
+                    click: zoomToFeature
+                });
+                layer.bindPopup(content);
+            },
+            style: style
+        });
+
+        var gruposEmb = L.markerClusterGroup();
+
+        gruposEmb.addLayer(emb);
+
+        var gruposDen = L.markerClusterGroup();
+
+        gruposDen.addLayer(den);
+
+
+        var overlays = {
+            "Embarazadas": emb,
+            //"Dengue": den,
+            "Radio": circulo,
+            "Grupos de embarazadas": gruposEmb,
+            "Grupos de dengue": gruposDen,
+            "Áreas de búsqueda": ent,
+            "Municipio": mun,
+            "Localidades": loc,
+            "Capa satelital": HERE_hybridDay
+        };
+
+        emb.addTo(map);
+        //den.addTo(map);
+        circulo.addTo(map);
+
+        if (den._layers) {
+            var bounds = [];
+            den.eachLayer(function (layer) {
+                bounds.push(layer.getLatLng());
+            });
+
+            if(bounds.length !== 0){
+                map.fitBounds(bounds);
+            }
+            else{
+                map.setView([19.419444,  -99.145556], 5)
+            }
+        }
+        if (ent._layers) {
+            ent.addTo(map);
+        }
+
+        if (mun._layers) {
+            mun.addTo(map);
+        }
+
+        if (loc._layers) {
+            loc.addTo(map);
+        }
+
+        map.addLayer(gruposEmb);
+        map.addLayer(gruposDen);
+
+        L.control.layers(null, overlays).addTo(map);
+
+        var controlSearch = new L.Control.Search({
+            position:'topright',
+            layer: ent,
+            propertyName: 'nomgeo',
+            textErr: 'No existe',
+            textPlaceholder: 'Buscar municipio',
+            hideMarkerOnCollapse: true,
+            marker: {
+                circle: {
+                    radius: 20,
+                    color: '#00e3ff',
+                    opacity: 1
+                }
+            }
+        });
+
+        map.addControl(controlSearch);
+
+        function getColor(d) {
+            return d > 35 ? '#800026' :
+                d > 30  ? '#BD0026' :
+                    d > 25  ? '#E31A1C' :
+                        d > 20  ? '#FC4E2A' :
+                            d > 15   ? '#FD8D3C' :
+                                d > 10   ? '#FEB24C' :
+                                    d > 5   ? '#FED976' :
+                                        '#FFEDA0';
+        }
+
+        function style(feature) {
+            return {
+                fillColor: getColor(feature.properties.numero_dengues),
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7
+            };
+        }
+
+        function highlightFeature(e) {
+            var layer = e.target;
+
+            layer.setStyle({
+                weight: 5,
+                color: '#666',
+                dashArray: '',
+                fillOpacity: 0.7
+            });
+
+            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                layer.bringToFront();
+            }
+            info.update(layer.feature.properties);
+        }
+
+        function resetHighlight(e) {
+            ent.resetStyle(e.target);
+
+            info.update();
+        }
+
+        function zoomToFeature(e) {
+            map.fitBounds(e.target.getBounds());
+        }
+
+        var legend = L.control({position: 'bottomright'});
+
+        legend.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'info legend'),
+                grades = [0, 5, 10, 15, 20, 25, 30, 35],
+                labels = [];
+            for (var i = 0; i < grades.length; i++) {
+                div.innerHTML +=
+                    '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+                    grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+            }
+            return div;
+        };
+
+        legend.addTo(map);
+
+        function pointsInCircle(x, y) {
+
+            var counter_points_in_circle = 0;
+
+            emb.eachLayer(function(layer) {
+                let layer_lat_long = layer.getLatLng();
+                let distance_from_layer_circle = layer_lat_long.distanceTo([y, x]);
+                if (distance_from_layer_circle <= 200) {
+                    counter_points_in_circle += 1;
+                }
+            });
+            return counter_points_in_circle
+        }
+
+
+        var info = L.control({position: 'bottomleft'});
+
+        info.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+            this.update();
+            return this._div;
+        };
+
+        info.update = function (props) {
+            if (props) {
+                var nombre = null;
+                if (props.nomloc) {
+                    nombre = props.nomloc
+                }
+                else {
+                    nombre = props.nomgeo
+                }
+                this._div.innerHTML = '<h4>Casos de Dengue por área</h4>' +  (props ?
+                    '<b>' + 'Nombre:' + nombre + '</b><br />' + 'Número de casos:' + props.numero_dengues
+                    : 'Coloca el puntero sobre un área');
+            }
+        };
+
+        info.addTo(map);
+    }
+</script>
+
+{% leaflet_map "gis" callback="window.map_init_basic" %}
+{% endblock %}

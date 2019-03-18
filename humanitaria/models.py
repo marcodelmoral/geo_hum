@@ -1,4 +1,3 @@
-# This is an auto-generated Django model module created by ogrinspect.
 from django.contrib.gis.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
@@ -9,15 +8,63 @@ entidad_mapping = {
     'geom': 'MULTIPOLYGON',
 }
 
+municipio_mapping = {
+    'cvegeo': 'CVEGEO',
+    'cve_ent': 'CVE_ENT',
+    'cve_mun': 'CVE_MUN',
+    'nomgeo': 'NOMGEO',
+    'geom': 'MULTIPOLYGON',
+}
 
-# TODO Ponerle las propiedades de contenido en HTML para el mapa
+localidad_mapping = {
+    'cvegeo': 'CVEGEO',
+    'cve_ent': 'CVE_ENT',
+    'cve_mun': 'CVE_MUN',
+    'cve_loc': 'CVE_LOC',
+    'nomgeo': 'NOMGEO',
+    'ambito': 'AMBITO',
+    'geom': 'MULTIPOLYGON',
+}
+
+agebu_mapping = {
+    'cvegeo': 'CVEGEO',
+    'cve_ent': 'CVE_ENT',
+    'cve_mun': 'CVE_MUN',
+    'cve_loc': 'CVE_LOC',
+    'cve_ageb': 'CVE_AGEB',
+    'geom': 'MULTIPOLYGON',
+}
+
+agebr_mapping = {
+    'cvegeo': 'CVEGEO',
+    'cve_ent': 'CVE_ENT',
+    'cve_mun': 'CVE_MUN',
+    'cve_ageb': 'CVE_AGEB',
+    'geom': 'MULTIPOLYGON',
+}
+
+manzana_mapping = {
+    'cvegeo': 'CVEGEO',
+    'cve_ent': 'CVE_ENT',
+    'cve_mun': 'CVE_MUN',
+    'cve_loc': 'CVE_LOC',
+    'cve_ageb': 'CVE_AGEB',
+    'cve_mza': 'CVE_MZA',
+    'ambito': 'AMBITO',
+    'tipomza': 'TIPOMZA',
+    'geom': 'MULTIPOLYGON',
+}
+
+
+# TODO(Rocio e Indra) Ponerle las propiedades de contenido en HTML para el mapa
 # Poblacion por cada subdivision
 # Quizas numero de subdivisiones
-class Entidad(models.Model):
+# Preguntar que informacion o inferencia
+# Por ejemplo, sumar columnas y sacar numero de niños
+class DivisionGeografica(models.Model):
     # Identificacion geografica
     cvegeo = models.CharField(max_length=2)
     cve_ent = models.CharField(max_length=2)
-    nomgeo = models.CharField(max_length=80)
     geom = models.MultiPolygonField(srid=4326)
 
     # Relacion de indicadores
@@ -32,7 +79,17 @@ class Entidad(models.Model):
     POBTOT = models.PositiveIntegerField(null=True,
                                          validators=[MaxValueValidator(2)],
                                          verbose_name='Población total',
-                                         help_text='Total de personas que residen habitualmente en el país, entidad federativa, municipio y localidad. Incluye la estimación del número de personas en viviendas particulares sin información de ocupantes. Incluye a la población que no especificó su edad')
+                                         help_text='Total de personas que '
+                                                   'residen habitualmente en '
+                                                   'el país, entidad '
+                                                   'federativa, municipio y '
+                                                   'localidad. Incluye la '
+                                                   'estimación del número de '
+                                                   'personas en viviendas '
+                                                   'particulares sin '
+                                                   'información de ocupantes. '
+                                                   'Incluye a la población que '
+                                                   'no especificó su edad')
     POBMAS = models.PositiveIntegerField(null=True,
                                          verbose_name='Población masculina')
     POBFEM = models.PositiveIntegerField(null=True,
@@ -40,54 +97,51 @@ class Entidad(models.Model):
     P_0A2 = models.PositiveIntegerField(null=True,
                                         verbose_name='Población de 0 a 2 años')
     P_0A2_M = models.PositiveIntegerField(null=True,
-                                          verbose_name='Población masculina de 0 a 2 años')
+                                          verbose_name='Población masculina de '
+                                                       '0 a 2 años')
     P_0A2_F = models.PositiveIntegerField(null=True,
-                                          verbose_name='Población femenina de 0 a 2 años')
+                                          verbose_name='Población femenina de '
+                                                       '0 a 2 años')
     P_3YMAS = models.PositiveIntegerField(null=True,
                                           validators=[MinValueValidator(3),
                                                       MaxValueValidator(130)],
-                                          verbose_name='Población de 3 años y más')
-
-    def __str__(self):
-        return self.nomgeo
+                                          verbose_name='Población de 3 años '
+                                                       'y más')
 
     class Meta:
+        abstract = True
         ordering = ['nomgeo']
 
 
-municipio_mapping = {
-    'cvegeo': 'CVEGEO',
-    'cve_ent': 'CVE_ENT',
-    'cve_mun': 'CVE_MUN',
-    'nomgeo': 'NOMGEO',
-    'geom': 'MULTIPOLYGON',
-}
-
-
-class Municipio(models.Model):
-    cvegeo = models.CharField(max_length=5)
-    cve_ent = models.CharField(max_length=2)
-    cve_mun = models.CharField(max_length=3)
+class Entidad(DivisionGeografica):
     nomgeo = models.CharField(max_length=80)
-    geom = models.MultiPolygonField(srid=4326)
-    entidad = models.ForeignKey(Entidad, on_delete=models.SET_NULL, null=True)
-    POBTOT = models.PositiveIntegerField(null=True,
-                                         validators=[MaxValueValidator(2)],
-                                         verbose_name='Población total',
-                                         help_text='Total de personas que residen habitualmente en el país, entidad federativa, municipio y localidad. Incluye la estimación del número de personas en viviendas particulares sin información de ocupantes. Incluye a la población que no especificó su edad')
-    POBMAS = models.PositiveIntegerField(null=True,
-                                         verbose_name='Población masculina')
-    POBFEM = models.PositiveIntegerField(null=True,
-                                         verbose_name='Población femenina')
-    P_0A2 = models.PositiveIntegerField(null=True,
-                                        verbose_name='Población de 0 a 2 años')
-    P_0A2_M = models.PositiveIntegerField(null=True,
-                                          verbose_name='Población masculina de 0 a 2 años')
-    P_0A2_F = models.PositiveIntegerField(null=True,
-                                          verbose_name='Población femenina de 0 a 2 años')
+
+    @property
+    def contenido(self):
+        return f'<p><strong>Nombre: </strong> {self.nomgeo} ' \
+            f'</p><p><strong>Población total:</strong> {self.POBTOT} ' \
+            f'</p><p><strong>Población masculina:</strong> {self.POBMAS} ' \
+            f'</p> <p><strong>Población femenina:</strong> {self.POBFEM} </p>'
 
     def __str__(self):
         return self.nomgeo
+
+
+class Municipio(DivisionGeografica):
+    nomgeo = models.CharField(max_length=80)
+    cve_mun = models.CharField(max_length=3)
+    entidad = models.ForeignKey(Entidad, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return self.nomgeo
+
+    @property
+    def contenido(self):
+        return f'<p><strong>Nombre: </strong> {self.nomgeo} ' \
+            f'<p><strong>Entidad: </strong> {str(self.entidad)} ' \
+            f'</p><p><strong>Población total:</strong> {self.POBTOT} ' \
+            f'</p><p><strong>Población masculina:</strong> {self.POBMAS} ' \
+            f'</p> <p><strong>Población femenina:</strong> {self.POBFEM} </p>'
 
     def relaciona(self, created=False):
         if created:
@@ -103,48 +157,29 @@ class Municipio(models.Model):
         ordering = ['nomgeo']
 
 
-localidad_mapping = {
-    'cvegeo': 'CVEGEO',
-    'cve_ent': 'CVE_ENT',
-    'cve_mun': 'CVE_MUN',
-    'cve_loc': 'CVE_LOC',
-    'nomgeo': 'NOMGEO',
-    'ambito': 'AMBITO',
-    'geom': 'MULTIPOLYGON',
-}
-
-
-class Localidad(models.Model):
-    cvegeo = models.CharField(max_length=9)
-    cve_ent = models.CharField(max_length=2)
+class Localidad(DivisionGeografica):
+    nomgeo = models.CharField(max_length=80)
     cve_mun = models.CharField(max_length=3)
     cve_loc = models.CharField(max_length=4)
-    nomgeo = models.CharField(max_length=120)
     ambito = models.CharField(max_length=6)
-    geom = models.MultiPolygonField(srid=4326)
     entidad = models.ForeignKey(Entidad,
                                 on_delete=models.SET_NULL,
                                 null=True)
     municipio = models.ForeignKey(Municipio,
                                   on_delete=models.SET_NULL,
                                   null=True)
-    POBTOT = models.PositiveIntegerField(null=True,
-                                         validators=[MaxValueValidator(2)],
-                                         verbose_name='Población total',
-                                         help_text='Total de personas que residen habitualmente en el país, entidad federativa, municipio y localidad. Incluye la estimación del número de personas en viviendas particulares sin información de ocupantes. Incluye a la población que no especificó su edad')
-    POBMAS = models.PositiveIntegerField(null=True,
-                                         verbose_name='Población masculina')
-    POBFEM = models.PositiveIntegerField(null=True,
-                                         verbose_name='Población femenina')
-    P_0A2 = models.PositiveIntegerField(null=True,
-                                        verbose_name='Población de 0 a 2 años')
-    P_0A2_M = models.PositiveIntegerField(null=True,
-                                          verbose_name='Población masculina de 0 a 2 años')
-    P_0A2_F = models.PositiveIntegerField(null=True,
-                                          verbose_name='Población femenina de 0 a 2 años')
 
     def __str__(self):
         return self.nomgeo
+
+    @property
+    def contenido(self):
+        return f'<p><strong>Nombre: </strong> {self.nomgeo} ' \
+            f'<p><strong>Entidad: </strong> {str(self.entidad)} '\
+            f'<p><strong>Municipio: </strong> {str(self.municipio)} ' \
+            f'</p><p><strong>Población total:</strong> {self.POBTOT} ' \
+            f'</p><p><strong>Población masculina:</strong> {self.POBMAS} ' \
+            f'</p> <p><strong>Población femenina:</strong> {self.POBFEM} </p>'
 
     def relaciona(self, created=False):
         if created:
@@ -162,48 +197,34 @@ class Localidad(models.Model):
         ordering = ['nomgeo']
 
 
-agebu_mapping = {
-    'cvegeo': 'CVEGEO',
-    'cve_ent': 'CVE_ENT',
-    'cve_mun': 'CVE_MUN',
-    'cve_loc': 'CVE_LOC',
-    'cve_ageb': 'CVE_AGEB',
-    'geom': 'MULTIPOLYGON',
-}
-
-
 # Ageb urbano
-class Agebu(models.Model):
-    cvegeo = models.CharField(max_length=13)
-    cve_ent = models.CharField(max_length=2)
+class Agebu(DivisionGeografica):
     cve_mun = models.CharField(max_length=3)
     cve_loc = models.CharField(max_length=4)
     cve_ageb = models.CharField(max_length=4)
-    geom = models.MultiPolygonField(srid=4326)
     entidad = models.ForeignKey(Entidad,
                                 on_delete=models.SET_NULL,
                                 null=True)
     municipio = models.ForeignKey(Municipio,
                                   on_delete=models.SET_NULL,
                                   null=True)
-    localidad = models.ForeignKey(Localidad, on_delete=models.SET_NULL, null=True)
-    POBTOT = models.PositiveIntegerField(null=True,
-                                         validators=[MaxValueValidator(2)],
-                                         verbose_name='Población total',
-                                         help_text='Total de personas que residen habitualmente en el país, entidad federativa, municipio y localidad. Incluye la estimación del número de personas en viviendas particulares sin información de ocupantes. Incluye a la población que no especificó su edad')
-    POBMAS = models.PositiveIntegerField(null=True,
-                                         verbose_name='Población masculina')
-    POBFEM = models.PositiveIntegerField(null=True,
-                                         verbose_name='Población femenina')
-    P_0A2 = models.PositiveIntegerField(null=True,
-                                        verbose_name='Población de 0 a 2 años')
-    P_0A2_M = models.PositiveIntegerField(null=True,
-                                          verbose_name='Población masculina de 0 a 2 años')
-    P_0A2_F = models.PositiveIntegerField(null=True,
-                                          verbose_name='Población femenina de 0 a 2 años')
+    localidad = models.ForeignKey(Localidad,
+                                  on_delete=models.SET_NULL,
+                                  null=True)
 
     def __str__(self):
         return self.cve_ageb
+
+    @property
+    def contenido(self):
+        return f'<p><strong>Nombre: </strong> {self.cve_ageb} ' \
+            f'<p><strong>Tipo: </strong> Urbano ' \
+            f'<p><strong>Entidad: </strong> {str(self.entidad)} ' \
+            f'<p><strong>Municipio: </strong> {str(self.municipio)} ' \
+            f'<p><strong>Localidad: </strong> {str(self.localidad)} ' \
+            f'</p><p><strong>Población total:</strong> {self.POBTOT} ' \
+            f'</p><p><strong>Población masculina:</strong> {self.POBMAS} ' \
+            f'</p> <p><strong>Población femenina:</strong> {self.POBFEM} </p>'
 
     def relaciona(self, created=False):
         if created:
@@ -220,45 +241,29 @@ class Agebu(models.Model):
         self.relaciona(created)
 
 
-agebr_mapping = {
-    'cvegeo': 'CVEGEO',
-    'cve_ent': 'CVE_ENT',
-    'cve_mun': 'CVE_MUN',
-    'cve_ageb': 'CVE_AGEB',
-    'geom': 'MULTIPOLYGON',
-}
-
-
 # Los ageb rurales no tienen localidad omg!
-class Agebr(models.Model):
-    cvegeo = models.CharField(max_length=9)
-    cve_ent = models.CharField(max_length=2)
+class Agebr(DivisionGeografica):
     cve_mun = models.CharField(max_length=3)
     cve_ageb = models.CharField(max_length=4)
-    geom = models.MultiPolygonField(srid=4326)
     entidad = models.ForeignKey(Entidad,
                                 on_delete=models.SET_NULL,
                                 null=True)
     municipio = models.ForeignKey(Municipio,
                                   on_delete=models.SET_NULL,
                                   null=True)
-    POBTOT = models.PositiveIntegerField(null=True, blank=True,
-                                         validators=[MaxValueValidator(2)],
-                                         verbose_name='Población total',
-                                         help_text='Total de personas que residen habitualmente en el país, entidad federativa, municipio y localidad. Incluye la estimación del número de personas en viviendas particulares sin información de ocupantes. Incluye a la población que no especificó su edad')
-    POBMAS = models.PositiveIntegerField(null=True, blank=True,
-                                         verbose_name='Población masculina')
-    POBFEM = models.PositiveIntegerField(null=True, blank=True,
-                                         verbose_name='Población femenina')
-    P_0A2 = models.PositiveIntegerField(null=True, blank=True,
-                                        verbose_name='Población de 0 a 2 años')
-    P_0A2_M = models.PositiveIntegerField(null=True, blank=True,
-                                          verbose_name='Población masculina de 0 a 2 años')
-    P_0A2_F = models.PositiveIntegerField(null=True, blank=True,
-                                          verbose_name='Población femenina de 0 a 2 años')
 
     def __str__(self):
         return self.cve_ageb
+
+    @property
+    def contenido(self):
+        return f'<p><strong>Nombre: </strong> {self.cve_ageb} ' \
+            f'<p><strong>Tipo: </strong> Rural ' \
+            f'<p><strong>Entidad: </strong> {str(self.entidad)} ' \
+            f'<p><strong>Municipio: </strong> {str(self.municipio)} ' \
+            f'</p><p><strong>Población total:</strong> {self.POBTOT} ' \
+            f'</p><p><strong>Población masculina:</strong> {self.POBMAS} ' \
+            f'</p> <p><strong>Población femenina:</strong> {self.POBFEM} </p>'
 
     def relaciona(self, created=False):
         if created:
@@ -273,70 +278,48 @@ class Agebr(models.Model):
         self.relaciona(created)
 
 
-manzana_mapping = {
-    'cvegeo': 'CVEGEO',
-    'cve_ent': 'CVE_ENT',
-    'cve_mun': 'CVE_MUN',
-    'cve_loc': 'CVE_LOC',
-    'cve_ageb': 'CVE_AGEB',
-    'cve_mza': 'CVE_MZA',
-    'ambito': 'AMBITO',
-    'tipomza': 'TIPOMZA',
-    'geom': 'MULTIPOLYGON',
-}
-
-
-class Manzana(models.Model):
+class Manzana(DivisionGeografica):
     # Definicion de elementos para campo de eleccion
 
-    CONJHAB_TIPO = ((1, 'Conjunto habitacional'),
-                    (3, 'Manzana típica'),
-                    (9, 'Manzana no especificada'))
+    CONJHAB_TIPO = (
+        (1, 'Conjunto habitacional'),
+        (3, 'Manzana típica'),
+        (9, 'Manzana no especificada')
+    )
 
-    # Identificacion geografica
-
-    cvegeo = models.CharField(max_length=16)
-    cve_ent = models.CharField(max_length=2)
     cve_mun = models.CharField(max_length=3)
     cve_loc = models.CharField(max_length=4)
     cve_ageb = models.CharField(max_length=4)
     cve_mza = models.CharField(max_length=3)
     ambito = models.CharField(max_length=6)
     tipomza = models.CharField(max_length=16)
-    geom = models.MultiPolygonField(srid=4326)
+
     entidad = models.ForeignKey(Entidad,
                                 on_delete=models.SET_NULL,
                                 null=True)
     municipio = models.ForeignKey(Municipio,
                                   on_delete=models.SET_NULL,
                                   null=True)
-    localidad = models.ForeignKey(Localidad, on_delete=models.SET_NULL, null=True)
+    localidad = models.ForeignKey(Localidad, on_delete=models.SET_NULL,
+                                  null=True)
     agebu = models. ForeignKey(Agebu, on_delete=models.SET_NULL, null=True)
     agebr = models.ForeignKey(Agebr, on_delete=models.SET_NULL, null=True)
 
-    # Relacion de indicadores
-    # Poblacion
-    POBTOT = models.PositiveIntegerField(null=True,
-                                         validators=[MaxValueValidator(2)],
-                                         verbose_name='Población total',
-                                         help_text='Total de personas que residen habitualmente en el país, entidad federativa, municipio y localidad. Incluye la estimación del número de personas en viviendas particulares sin información de ocupantes. Incluye a la población que no especificó su edad')
-    POBMAS = models.PositiveIntegerField(null=True,
-                                         verbose_name='Población masculina')
-    POBFEM = models.PositiveIntegerField(null=True,
-                                         verbose_name='Población femenina')
-    P_0A2 = models.PositiveIntegerField(null=True,
-                                        verbose_name='Población de 0 a 2 años')
-    P_0A2_M = models.PositiveIntegerField(null=True,
-                                          verbose_name='Población masculina de 0 a 2 años')
-    P_0A2_F = models.PositiveIntegerField(null=True,
-                                          verbose_name='Población femenina de 0 a 2 años')
-
-    # Infraestructura
-    # Los nombres van sin el guin bajo!
-    CONJHAB = models.PositiveSmallIntegerField(null=True, choices=CONJHAB_TIPO)
-
     def __str__(self):
         return self.cve_mza
+
+    @property
+    def contenido(self):
+        return f'<p><strong>Nombre: </strong> {self.cve_mza} ' \
+            f'<p><strong>Tipo: </strong> {self.tipomza} ' \
+            f'<p><strong>Entidad: </strong> {str(self.entidad)} ' \
+            f'<p><strong>Municipio: </strong> {str(self.municipio)} ' \
+            f'<p><strong>Localidad: </strong> {str(self.localidad)} ' \
+            f'<p><strong>AGEB urbana: </strong> {str(self.agebu)} ' \
+            f'<p><strong>AGEB rural: </strong> {str(self.agebr)} ' \
+            f'</p><p><strong>Población total:</strong> {self.POBTOT} ' \
+            f'</p><p><strong>Población masculina:</strong> {self.POBMAS} ' \
+            f'</p> <p><strong>Población femenina:</strong> {self.POBFEM} </p>'
 
     def relaciona(self, created=False):
         if created:
@@ -357,5 +340,7 @@ class Manzana(models.Model):
         created = self.pk is None
         super(Manzana, self).save(*args, **kwargs)
         self.relaciona(created)
+
+
 
 
