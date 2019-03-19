@@ -70,7 +70,9 @@ body {
 	display:flex;
 }
 
-    #gis { width:100%; height:100% }
+    #gis { width:100%;
+		height:900px }
+
     .select2-selection {
 
         width: 350px;

@@ -110,7 +110,6 @@ class DivisionGeografica(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ['nomgeo']
 
 
 class Entidad(DivisionGeografica):
@@ -125,6 +124,9 @@ class Entidad(DivisionGeografica):
 
     def __str__(self):
         return self.nomgeo
+
+    class Meta:
+        ordering = ['nomgeo']
 
 
 class Municipio(DivisionGeografica):
@@ -278,6 +280,8 @@ class Agebr(DivisionGeografica):
         self.relaciona(created)
 
 
+# TODO(Refactor) Modificar manzana para que los campos ambito y tipo
+# sean smallintegerfields
 class Manzana(DivisionGeografica):
     # Definicion de elementos para campo de eleccion
 

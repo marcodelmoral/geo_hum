@@ -8,7 +8,7 @@ from humanitaria.serializers import *
 
 
 class ConsultaGeoespacial(FormView):
-    template_name = 'consulta_geoespacial.html'
+    template_name = 'consulta_geoespacial2.html'
     form_class = FormConsultaGeo
 
     def form_invalid(self, form):
@@ -18,8 +18,8 @@ class ConsultaGeoespacial(FormView):
         entidad = form.cleaned_data['entidad']
         municipio = form.cleaned_data['municipio']
         localidad = form.cleaned_data['localidad']
-        agebu = form.cleaned_data
-        agebr = form.cleaned_data
+        agebu = form.cleaned_data['agebu']
+        agebr = form.cleaned_data['agebr']
         ent = None
         mun = None
         loc = None

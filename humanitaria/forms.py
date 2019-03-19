@@ -40,9 +40,9 @@ class FormConsultaGeo(Form):
         )
     )
 
-    ageu = ModelChoiceField(
+    agebu = ModelChoiceField(
         queryset=Localidad.objects.all(),
-        label="AGEB Urbama",
+        label="AGEB Urbana",
         required=False,
         widget=ModelSelect2Widget(
             model=Agebu,
@@ -51,7 +51,7 @@ class FormConsultaGeo(Form):
         )
     )
 
-    ager = ModelChoiceField(
+    agebr = ModelChoiceField(
         queryset=Localidad.objects.all(),
         label="AGEB Rural",
         required=False,
@@ -75,4 +75,6 @@ class FormConsultaGeo(Form):
             Field('entidad', css_class=''),
             Field('municipio'),
             Field('localidad'),
+            Field('agebu'),
+            Field('agebr'),
         )

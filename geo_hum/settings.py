@@ -127,5 +127,16 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
-
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 STATIC_URL = '/static/'
+
+LEAFLET_CONFIG = {
+    'DEFAULT_CENTER': (19.419444,  -99.145556),
+    'DEFAULT_ZOOM': 2,
+    'NO_GLOBALS': False,
+    'RESET_VIEW': False,
+    'MINIMAP': False,
+    'MAX_ZOOM': 19,
+    'MIN_ZOOM': 5,
+    'ATTRIBUTION_PREFIX': 'Autor: Marco Julio Del Moral Argumedo - Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>'
+}

@@ -284,10 +284,6 @@
             "Capa satelital": HERE_hybridDay
         };
 
-        emb.addTo(map);
-        //den.addTo(map);
-        circulo.addTo(map);
-
         if (den._layers) {
             var bounds = [];
             den.eachLayer(function (layer) {
@@ -312,9 +308,6 @@
         if (loc._layers) {
             loc.addTo(map);
         }
-
-        map.addLayer(gruposEmb);
-        map.addLayer(gruposDen);
 
         L.control.layers(null, overlays).addTo(map);
 
@@ -400,41 +393,19 @@
 
         legend.addTo(map);
 
-        function pointsInCircle(x, y) {
-
-            var counter_points_in_circle = 0;
-
-            emb.eachLayer(function(layer) {
-                let layer_lat_long = layer.getLatLng();
-                let distance_from_layer_circle = layer_lat_long.distanceTo([y, x]);
-                if (distance_from_layer_circle <= 200) {
-                    counter_points_in_circle += 1;
-                }
-            });
-            return counter_points_in_circle
-        }
-
 
         var info = L.control({position: 'bottomleft'});
 
         info.onAdd = function (map) {
-            this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+            this._div = L.DomUtil.create('div', 'info');
             this.update();
             return this._div;
         };
 
         info.update = function (props) {
             if (props) {
-                var nombre = null;
-                if (props.nomloc) {
-                    nombre = props.nomloc
-                }
-                else {
-                    nombre = props.nomgeo
-                }
-                this._div.innerHTML = '<h4>Casos de Dengue por área</h4>' +  (props ?
-                    '<b>' + 'Nombre:' + nombre + '</b><br />' + 'Número de casos:' + props.numero_dengues
-                    : 'Coloca el puntero sobre un área');
+
+                this._div.innerHTML = props.contenido
             }
         };
 
