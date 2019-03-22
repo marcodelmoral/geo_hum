@@ -11,7 +11,6 @@ class EntidadSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Entidad
         geo_field = GEOM_FIELD
-
         fields = FIELDS
 
 
@@ -40,7 +39,7 @@ class AgebuSerializer(GeoFeatureModelSerializer):
         model = Agebu
         geo_field = GEOM_FIELD
 
-        fields = FIELDS
+        fields = ('contenido', 'cve_ageb')
 
 
 class AgebrSerializer(GeoFeatureModelSerializer):
@@ -49,7 +48,7 @@ class AgebrSerializer(GeoFeatureModelSerializer):
         model = Agebr
         geo_field = GEOM_FIELD
 
-        fields = FIELDS
+        fields = ('contenido', 'cve_ageb')
 
 
 class ManzanaSerializer(GeoFeatureModelSerializer):
@@ -58,4 +57,4 @@ class ManzanaSerializer(GeoFeatureModelSerializer):
         model = Manzana
         geo_field = GEOM_FIELD
 
-        fields = FIELDS
+        fields = ('contenido', 'cve_mza')

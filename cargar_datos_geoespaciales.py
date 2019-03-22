@@ -9,7 +9,7 @@ from humanitaria.models import Entidad, Municipio, Localidad, Agebu, Agebr, \
     manzana_mapping, agebr_mapping
 
 
-def run(verbose=True):
+def run_geoespacial(verbose=True):
 
     folder = 'C:\\Users\\marco\\PycharmProjects\\geo_hum\\data\\889463674658_s'
     print(folder)
@@ -21,8 +21,10 @@ def run(verbose=True):
                                                             r'a).shp\b', f)]
         agebr = [f for f in os.listdir(subdir) if re.search(r'\b\d\d('
                                                             r'ar).shp\b', f)]
-        localidad = [f for f in os.listdir(subdir) if re.search(r'\b\d\d(l).shp\b', f)]
-        manzana = [f for f in os.listdir(subdir) if re.search(r'\b\d\d(m).shp\b', f)]
+        localidad = [f for f in os.listdir(subdir) if re.search(r'\b\d\d('
+                                                                r'l_procesado).shp\b', f)]
+        manzana = [f for f in os.listdir(subdir) if re.search(r'\b\d\d('
+                                                              r'm_procesado).shp\b', f)]
         for e in entidad:
             lme = LayerMapping(Entidad, os.path.join(subdir, e),
                                entidad_mapping,
@@ -54,4 +56,4 @@ def run(verbose=True):
 
 
 if __name__ == "__main__":
-    run()
+    run_geoespacial()

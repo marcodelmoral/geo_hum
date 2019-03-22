@@ -17,35 +17,33 @@ class ConsultaGeoespacial(FormView):
     def form_valid(self, form):
         entidad = form.cleaned_data['entidad']
         municipio = form.cleaned_data['municipio']
-        localidad = form.cleaned_data['localidad']
-        agebu = form.cleaned_data['agebu']
-        agebr = form.cleaned_data['agebr']
+        # localidad = form.cleaned_data['localidad']
+        # agebu = form.cleaned_data['agebu']
+        # agebr = form.cleaned_data['agebr']
         ent = None
         mun = None
         loc = None
         agu = None
         agr = None
         mza = None
-
+        # La búsqueda es por municipio, ojo!
         if entidad:
             ent = EntidadSerializer(entidad.municipio_set.all(),
                                     many=True).data
             if municipio:
                 mun = MunicipioSerializer(municipio).data
 
-                if localidad:
-                    loc = LocalidadSerializer(municipio.localidad_set.all(),
-                                              many=True).data
-                    if agebu:
-                        agu = AgebuSerializer(localidad.agebu_set.all(),
-                                              many=True).data
-                        mza = ManzanaSerializer(agebu.manzana_set.all(),
-                                                many=True).data
-                    if agebr:
-                        agr = AgebrSerializer(localidad.agebr_set.all(),
-                                              many=True).data
-                        mza = ManzanaSerializer(agebr.manzana_set.all(),
-                                                many=True).data
+                loc = LocalidadSerializer(municipio.localidad_set.all(),
+                                          many=True).data
+                # if agebu:
+                agu = AgebuSerializer(municipio.agebu_set.all(),
+                                          many=True).data
+
+                # if agebr:
+                agr = AgebrSerializer(municipio.agebr_set.all(),
+                                          many=True).data
+                mza = ManzanaSerializer(municipio.manzana_set.all(),
+                                        many=True).data
         else:
             ent = EntidadSerializer(Entidad.objects.all(), many=True).data
 

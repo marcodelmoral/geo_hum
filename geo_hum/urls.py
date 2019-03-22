@@ -20,5 +20,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('select2/', include('django_select2.urls')),
     # path('', index, name='home'),
-    path('humanitaria/', include('humanitaria.urls', namespace='humanitaria')),
+    path('/', include('humanitaria.urls', namespace='humanitaria')),
 ]

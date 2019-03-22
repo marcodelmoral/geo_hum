@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'leaflet',
     'humanitaria'
 ]
-GDAL_LIBRARY_PATH = 'C:/Anaconda3/envs/log_hum/Lib/site-packages/osgeo/gdal203.dll'
+GDAL_LIBRARY_PATH = 'C:/Anaconda3/envs/geo_hum/Lib/site-packages/osgeo' \
+                    '/gdal203.dll'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

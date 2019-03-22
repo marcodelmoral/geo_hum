@@ -1,6 +1,6 @@
-import math
 import os
 
+import math
 from simpledbf import Dbf5
 
 from humanitaria.models import Entidad
@@ -28,7 +28,7 @@ folder = 'C:\\Users\\marco\\PycharmProjects\\geo_hum\\data\\infraestructura'
 for subdir, dirs, files in os.walk(folder):
     for file in files:
         if 'DBF' in file:
-            dbf = Dbf5(os.path.join(folder,), codec='latin-1')
+            dbf = Dbf5(os.path.join(folder, file), codec='latin-1')
 
             df = dbf.to_dataframe()
 
