@@ -54,6 +54,22 @@ manzana_mapping = {
     'geom': 'MULTIPOLYGON',
 }
 
+servicio_mapping = {
+    'cvegeo': 'CVEGEO',
+    'cve_ent': 'CVE_ENT',
+    'cve_mun': 'CVE_MUN',
+    'cve_loc': 'CVE_LOC',
+    'cve_ageb': 'CVE_AGEB',
+    'cve_mza': 'CVE_MZA',
+    'condicion': 'CONDICION',
+    'geografico': 'GEOGRAFICO',
+    'nomserv': 'NOMSERV',
+    'tipo': 'TIPO',
+    'cve_serv': 'CVE_SERV',
+    'ambito': 'AMBITO',
+    'geom': 'MULTIPOINT',
+}
+
 
 # TODO(Marco) Ponerle hospitales, escuelas etc
 # TODO(Rocio e Indra) Ponerle las propiedades de contenido en HTML para el mapa
@@ -202,7 +218,7 @@ class DivisionGeografica(models.Model):
                                         blank=True,
                                         verbose_name='Población masculina de 8 a 14 años',
                                         help_text='Hombres de 8 a 14 años de edad.')
-    P_8A14_M = models.PositiveIntegerField(null=True,
+    P_8A14_F = models.PositiveIntegerField(null=True,
                                         blank=True,
                                         verbose_name='Población femenina de 8 a 14 años',
                                         help_text='Mujeres de 8 a 14 años de edad.')
@@ -226,7 +242,7 @@ class DivisionGeografica(models.Model):
                                         blank=True,
                                         verbose_name='Población masculina de 15 a 17 años',
                                         help_text='Hombres de 15 a 17 años de edad.')
-    P_15A17_M = models.PositiveIntegerField(null=True,
+    P_15A17_F = models.PositiveIntegerField(null=True,
                                         blank=True,
                                         verbose_name='Población femenina de 15 a 17 años',
                                         help_text='Mujeres de 15 a 17 años de edad.')
@@ -1201,11 +1217,12 @@ class Municipio(DivisionGeografica):
 
 class Localidad(DivisionGeografica):
     AMBITO_TIPO = (
+        (0, 'NA'),
         (1, 'Urbana'),
         (2, 'Rural')
     )
     cvegeo = models.CharField(max_length=9)
-    nomgeo = models.CharField(max_length=80)
+    nomgeo = models.CharField(max_length=120)
     cve_mun = models.CharField(max_length=3)
     cve_loc = models.CharField(max_length=4)
     # ambito = models.CharField(max_length=6)
@@ -1332,6 +1349,7 @@ class Agebr(DivisionGeografica):
 class Manzana(DivisionGeografica):
     # Definicion de elementos para campo de eleccion
     AMBITO_TIPO = (
+        (0, 'NA'),
         (1, 'Urbana'),
         (2, 'Rural')
     )
@@ -1696,3 +1714,91 @@ class Manzana(DivisionGeografica):
         created = self.pk is None
         super(Manzana, self).save(*args, **kwargs)
         self.relaciona(created)
+
+
+class Servicio(models.Model):
+    AMBITO_TIPO = (
+        (0, 'NA'),
+        (1, 'Urbana'),
+        (2, 'Rural')
+    )
+    SERVICIO_TIPO = (
+        ('No Aplica', 0),
+        ('Agua', 1),
+        ('Alberca Olímpica', 2),
+        ('Antena de Microondas de Telefonía', 3),
+        ('Antena de Radio', 4),
+        ('Antena de Televisión', 5),
+        ('Área Deportiva o Recreativa', 6),
+        ('Áreas Verdes', 7),
+        ('Aserradero', 8),
+        ('Autódromo', 9),
+        ('Ayudantía', 10),
+        ('Balneario', 11),
+        ('Bordo', 12),
+        ('Caja de Agua', 13),
+        ('Camellón', 14),
+        ('Campo de Golf', 15),
+        ('Cancha', 16),
+        ('Central de Autobuses', 17),
+        ('Central de Policía', 18),
+        ('Centro de Abastos', 19),
+        ('Centro de Espectáculos', 20),
+        ('Centro de Rehabilitación', 21),
+        ('Centro de Salud', 22),
+        ('Edificación Cultural', 23),
+        ('Estación de Transporte Foráneo', 24),
+        ('Estadio', 25),
+        ('Estanque', 26),
+        ('Gas', 27),
+        ('Gasolinera', 28),
+        ('Glorieta', 29),
+        ('Hipódromo', 30),
+        ('Hospital', 31),
+        ('Instalación Terrestre de Telecomunicación', 32),
+        ('Jardín', 33),
+        ('Lago', 34),
+        ('Laguna', 35),
+        ('Lienzo Charro', 36),
+        ('Medio Superior', 37),
+        ('Mixto', 38),
+        ('Monumento u Obelisco', 39),
+        ('Museo', 40),
+        ('Observatorio Astronómico', 41),
+        ('Palacio Municipal', 42),
+        ('Palacio de Gobierno', 43),
+        ('Parque', 44),
+        ('Petróleo', 45),
+        ('Planta Petroquímica', 46),
+        ('Planta de Tratamiento de Agua', 47),
+        ('Plaza de Toros', 48),
+        ('Preescolar', 48),
+        ('Presa', 50),
+        ('Primaria', 51),
+        ('Reclusorio', 52),
+        ('Secundaria', 53),
+        ('Superior', 54),
+        ('Tanque Elevado', 55),
+        ('Torre de Microondas', 56),
+        ('Unidad Deportiva', 57),
+        ('Zoológico', 58)
+    )
+
+    cvegeo = models.CharField(max_length=16)
+    cve_ent = models.CharField(max_length=2)
+    cve_mun = models.CharField(max_length=3)
+    cve_loc = models.CharField(max_length=4)
+    cve_ageb = models.CharField(max_length=4)
+    cve_mza = models.CharField(max_length=3)
+    condicion = models.CharField(max_length=15)
+    geografico = models.CharField(max_length=46)
+    nomserv = models.CharField(max_length=110)
+    tipo = models.CharField(max_length=59)
+    cve_serv = models.PositiveSmallIntegerField(blank=True,
+                                                null=True,
+                                                choices=SERVICIO_TIPO)
+    ambito = models.PositiveSmallIntegerField(blank=True,
+                                              null=True,
+                                              choices=AMBITO_TIPO)
+    geom = models.MultiPointField(srid=4326)
+
