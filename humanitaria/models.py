@@ -1,5 +1,6 @@
 from django.contrib.gis.db import models
 
+# Les quite el multi
 entidad_mapping = {
     'cvegeo': 'CVEGEO',
     'cve_ent': 'CVE_ENT',
@@ -67,6 +68,7 @@ servicio_mapping = {
     'tipo': 'TIPO',
     'cve_serv': 'CVE_SERV',
     'ambito': 'AMBITO',
+    'area': 'AREA',
     'geom': 'MULTIPOINT',
 }
 
@@ -1217,7 +1219,7 @@ class Municipio(DivisionGeografica):
 
 class Localidad(DivisionGeografica):
     AMBITO_TIPO = (
-        (0, 'NA'),
+        (0, 'No Aplica'),
         (1, 'Urbana'),
         (2, 'Rural')
     )
@@ -1225,7 +1227,6 @@ class Localidad(DivisionGeografica):
     nomgeo = models.CharField(max_length=120)
     cve_mun = models.CharField(max_length=3)
     cve_loc = models.CharField(max_length=4)
-    # ambito = models.CharField(max_length=6)
     ambito = models.PositiveSmallIntegerField(choices=AMBITO_TIPO)
     entidad = models.ForeignKey(Entidad,
                                 on_delete=models.SET_NULL,
@@ -1349,13 +1350,13 @@ class Agebr(DivisionGeografica):
 class Manzana(DivisionGeografica):
     # Definicion de elementos para campo de eleccion
     AMBITO_TIPO = (
-        (0, 'NA'),
+        (0, 'No Aplica'),
         (1, 'Urbana'),
         (2, 'Rural')
     )
 
     MANZANA_TIPO = (
-        (0, 'N/A'),
+        (0, 'No Aplica'),
         (1, 'Típica'),
         (2, 'Atípica'),
         (3, 'Contenedora'),
@@ -1365,6 +1366,7 @@ class Manzana(DivisionGeografica):
         (7, 'Glorieta'),
         (8, 'Parque o Jardín'),
         (9, 'Camellón'),
+        (10, 'Bajo Puente')
     )
     # Definicion de elementos para campo de eleccion
 
@@ -1665,9 +1667,6 @@ class Manzana(DivisionGeografica):
     cve_mza = models.CharField(max_length=3)
     ambito = models.PositiveSmallIntegerField(choices=AMBITO_TIPO)
     tipomza = models.PositiveSmallIntegerField(choices=MANZANA_TIPO)
-    # ambito = models.CharField(max_length=6)
-    # tipomza = models.CharField(max_length=16)
-
     entidad = models.ForeignKey(Entidad,
                                 on_delete=models.SET_NULL,
                                 null=True)
@@ -1717,71 +1716,148 @@ class Manzana(DivisionGeografica):
 
 
 class Servicio(models.Model):
+
+    GEOGRAFICO_TIPO = (
+        (0, "Aeródromo Civil"),
+        (1, "Camellón"),
+        (2, "Cementerio"),
+        (3, "Centro Comercial"),
+        (4, "Centro de Asistencia Médica"),
+        (5, "Corriente de Agua"),
+        (6, "Cuerpo de Agua"),
+        (7, "Escuela"),
+        (8, "Estación de Transporte Terrestre"),
+        (9, "Infraestructura Urbana"),
+        (10, "Instalación Deportiva o Recreativa"),
+        (11, "Instalación Diversa"),
+        (12, "Instalación Gubernamental"),
+        (13, "Instalación Industrial"),
+        (14, "Instalación Portuaria"),
+        (15, "Instalación de Comunicación"),
+        (16, "Instalación de Servicios"),
+        (17, "Mercado"),
+        (18, "Pista de Aviación"),
+        (19, "Plaza"),
+        (20, "Pozo"),
+        (21, "Restricción de Paso a Peatones y/o Automóviles"),
+        (22, "Subestación Eléctrica"),
+        (23, "Tanque de Agua"),
+        (24, "Templo"),
+        (25, "Zona Arqueológica"),
+    )
+
+    CONDICION_TIPO = (
+        (0, "No Aplica"),
+        (1, "En Construcción"),
+        (2, "En Operación"),
+        (3, "Fuera de Uso"),
+        (4, "Intermitente"),
+        (5, "Perenne"),
+    )
+
     AMBITO_TIPO = (
-        (0, 'NA'),
+        (0, 'No Aplica'),
         (1, 'Urbana'),
         (2, 'Rural')
     )
     SERVICIO_TIPO = (
-        ('No Aplica', 0),
-        ('Agua', 1),
-        ('Alberca Olímpica', 2),
-        ('Antena de Microondas de Telefonía', 3),
-        ('Antena de Radio', 4),
-        ('Antena de Televisión', 5),
-        ('Área Deportiva o Recreativa', 6),
-        ('Áreas Verdes', 7),
-        ('Aserradero', 8),
-        ('Autódromo', 9),
-        ('Ayudantía', 10),
-        ('Balneario', 11),
-        ('Bordo', 12),
-        ('Caja de Agua', 13),
-        ('Camellón', 14),
-        ('Campo de Golf', 15),
-        ('Cancha', 16),
-        ('Central de Autobuses', 17),
-        ('Central de Policía', 18),
-        ('Centro de Abastos', 19),
-        ('Centro de Espectáculos', 20),
-        ('Centro de Rehabilitación', 21),
-        ('Centro de Salud', 22),
-        ('Edificación Cultural', 23),
-        ('Estación de Transporte Foráneo', 24),
-        ('Estadio', 25),
-        ('Estanque', 26),
-        ('Gas', 27),
-        ('Gasolinera', 28),
-        ('Glorieta', 29),
-        ('Hipódromo', 30),
-        ('Hospital', 31),
-        ('Instalación Terrestre de Telecomunicación', 32),
-        ('Jardín', 33),
-        ('Lago', 34),
-        ('Laguna', 35),
-        ('Lienzo Charro', 36),
-        ('Medio Superior', 37),
-        ('Mixto', 38),
-        ('Monumento u Obelisco', 39),
-        ('Museo', 40),
-        ('Observatorio Astronómico', 41),
-        ('Palacio Municipal', 42),
-        ('Palacio de Gobierno', 43),
-        ('Parque', 44),
-        ('Petróleo', 45),
-        ('Planta Petroquímica', 46),
-        ('Planta de Tratamiento de Agua', 47),
-        ('Plaza de Toros', 48),
-        ('Preescolar', 48),
-        ('Presa', 50),
-        ('Primaria', 51),
-        ('Reclusorio', 52),
-        ('Secundaria', 53),
-        ('Superior', 54),
-        ('Tanque Elevado', 55),
-        ('Torre de Microondas', 56),
-        ('Unidad Deportiva', 57),
-        ('Zoológico', 58)
+        (0, "No Aplica"),
+        (1, "Acuario"),
+        (2, "Aduana"),
+        (3, "Agua"),
+        (4, "Alberca Olímpica"),
+        (5, "Alumbrado Público"),
+        (6, "Antena de Microondas de Telefonía"),
+        (7, "Antena de Radio"),
+        (8, "Antena de Televisión"),
+        (9, "Área Deportiva o Recreativa"),
+        (10, "Áreas Verdes"),
+        (11, "Arroyo"),
+        (12, "Aserradero"),
+        (13, "Autódromo"),
+        (14, "Ayudantía"),
+        (15, "Balneario"),
+        (16, "Bordo"),
+        (17, "Caja de Agua"),
+        (18, "Camellón"),
+        (19, "Campo de Golf"),
+        (20, "Campo de Tiro"),
+        (21, "Cancha"),
+        (22, "Caseta"),
+        (23, "Cenote"),
+        (24, "Central de Autobuses"),
+        (25, "Central de Bomberos"),
+        (26, "Central de Policía"),
+        (27, "Centro de Abastos"),
+        (28, "Centro de Asistencia Social"),
+        (29, "Centro de Espectáculos"),
+        (30, "Centro de Investigación"),
+        (31, "Centro de Rehabilitación"),
+        (32, "Centro de Salud"),
+        (33, "Cine"),
+        (34, "Edificación Cultural"),
+        (35, "Estación de  Ferrocarril"),    # Hay un espacio medio raro aqui
+        (36, "Estación de Bomberos"),
+        (37, "Estación de Gas"),
+        (38, "Estación de Metrobus"),
+        (39, "Estación de Transporte Foráneo"),
+        (40, "Estación de Tren Ligero"),
+        (41, "Estación de Tren Metropolitano (Metro)"),
+        (42, "Estadio"),
+        (43, "Estanque"),
+        (44, "Faro"),
+        (45, "Galgódromo"),
+        (46, "Gas"),
+        (47, "Gasolinera"),
+        (48, "Glorieta"),
+        (49, "Hipódromo"),
+        (50, "Hospital"),
+        (51, "Instalación Terrestre de Telecomunicación"),
+        (52, "Internacional"),
+        (53, "Jardín"),
+        (54, "Lago"),
+        (55, "Laguna"),
+        (56, "Lienzo Charro"),
+        (57, "Malecón"),
+        (58, "Medio Superior"),
+        (59, "Mixto"),
+        (60, "Monumento Histórico"),
+        (61, "Monumento u Obelisco"),
+        (62, "Museo"),
+        (63, "Nacional"),
+        (64, "Observatorio Astronómico"),  # 'Observataorio Astronómico',
+        (65, "Palacio Municipal"),
+        (66, "Palacio de Gobierno"),
+        (67, "Parque"),
+        (68, "Pavimentada"),
+        (69, "Petróleo"),
+        (70, "Pirámide"),
+        (71, "Planta Automotriz"),
+        (72, "Planta Cementera"),
+        (73, "Planta Petroquímica"),
+        (74, "Planta de Tratamiento de Agua"),
+        (75, "Plaza de Toros"),
+        (76, "Preescolar"),
+        (77, "Presa"),
+        (78, "Primaria"),
+        (79, "Radiofaro o VOR (Very High Frecuency Omnidirectional Range)"),
+        (80, "Rampa para Silla de Ruedas"),
+        (81, "Reclusorio"),
+        (82, "Refinería"),
+        (83, "Relleno Sanitario"),
+        (84, "Rompeolas o Escollera"),
+        (85, "Río"),
+        (86, "Secundaria"),
+        (87, "Silo"),
+        (88, "Superior"),
+        (89, "Tanque Elevado"),
+        (90, "Teatro"),
+        (91, "Teléfono Público"),
+        (92, "Terracería"),
+        (93, "Torre de Microondas"),
+        (94, "Unidad Deportiva"),
+        (95, "Velódromo"),
+        (96, "Zoológico")
     )
 
     cvegeo = models.CharField(max_length=16)
@@ -1790,15 +1866,81 @@ class Servicio(models.Model):
     cve_loc = models.CharField(max_length=4)
     cve_ageb = models.CharField(max_length=4)
     cve_mza = models.CharField(max_length=3)
-    condicion = models.CharField(max_length=15)
-    geografico = models.CharField(max_length=46)
+    condicion = models.PositiveSmallIntegerField(blank=True,
+                                                 null=True,
+                                                 choices=CONDICION_TIPO)
+    geografico = models.PositiveSmallIntegerField(blank=True,
+                                                  null=True,
+                                                  choices=GEOGRAFICO_TIPO)
     nomserv = models.CharField(max_length=110)
-    tipo = models.CharField(max_length=59)
+    area = models.CharField(max_length=255, blank=True, null=True)
+    tipo = models.PositiveSmallIntegerField(blank=True,
+                                            null=True,
+                                            choices=SERVICIO_TIPO)
     cve_serv = models.PositiveSmallIntegerField(blank=True,
-                                                null=True,
-                                                choices=SERVICIO_TIPO)
+                                                null=True)
     ambito = models.PositiveSmallIntegerField(blank=True,
                                               null=True,
                                               choices=AMBITO_TIPO)
     geom = models.MultiPointField(srid=4326)
 
+    entidad = models.ForeignKey(Entidad,
+                                on_delete=models.SET_NULL,
+                                null=True)
+    municipio = models.ForeignKey(Municipio,
+                                  on_delete=models.SET_NULL,
+                                  null=True)
+    localidad = models.ForeignKey(Localidad, on_delete=models.SET_NULL,
+                                  null=True)
+    agebu = models. ForeignKey(Agebu, on_delete=models.SET_NULL, null=True)
+    agebr = models.ForeignKey(Agebr, on_delete=models.SET_NULL, null=True)
+    manzana = models.ForeignKey(Manzana, on_delete=models.SET_NULL, null=True)
+
+    def relaciona(self, created=False):
+        if created:
+            ent = Entidad.objects.get(cve_ent=self.cve_ent)
+            mun = ent.municipio_set.get(cve_mun=self.cve_mun)
+            loc = mun.localidad_set.get(cve_loc=self.cve_loc)
+            ent.servicio_set.add(self)
+            mun.servicio_set.add(self)
+            loc.servicio_set.add(self)
+            if self.area:
+                try:
+                    agebu = Agebu.objects.filter(geom__contains=self.geom)[0]
+                except:
+                    try:
+                        agebr = Agebr.objects.filter(geom__contains=self.geom)[0]
+                    except:
+                        agebu = None
+                        agebr = None
+                try:
+                    mza = Manzana.objects.filter(geom__contains=self.geom)[0]
+                except:
+                    mza = None
+            else:
+                if self.ambito == 1:
+                    try:
+                        agebu = loc.agebu_set.get(cve_ageb=self.cve_ageb)
+                        mza = agebu.manzana_set(cve_mza=self.cve_mza)
+                    except:
+                        agebu = None
+                        mza = None
+                elif self.ambito == 2:
+                    try:
+                        agebr = mun.agebr_set.get(cve_ageb=self.cve_ageb)
+                        mza = agebr.manzana_set(cve_mza=self.cve_mza)
+                    except:
+                        agebr = None
+                        mza = None
+
+            if agebu:
+                agebu.servicio_set.add(self)
+            if agebr:
+                agebr.servicio_set.add(self)
+            if mza:
+                mza.servicio_set.add(self)
+
+    def save(self, *args, **kwargs):
+        created = self.pk is None
+        super(Servicio, self).save(*args, **kwargs)
+        self.relaciona(created)
